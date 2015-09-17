@@ -1,0 +1,29 @@
+{
+  "name": "ipfs-sync",
+  "version": "1.0.0",
+  "description": "sync directories over ipfs",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@github.com/fazo96/ipfs-sync.git"
+  },
+  "keywords": [
+    "ipfs",
+    "sync",
+    "synchronize",
+    "directories"
+  ],
+  "author": "Enrico Fasoli (fazo96)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/fazo96/ipfs-sync/issues"
+  },
+  "homepage": "https://github.com/fazo96/ipfs-sync#readme",
+  "dependencies": {
+    "commander": "^2.8.1",
+    "ipfs-api": "^2.3.2"
+  }
+}
