@@ -30,12 +30,13 @@ function refresh(){
     console.log('Current Hash is',currentHash)
 
     // Check all other nodes
+    var done = 0
     app.args.forEach(function(arg){
       var n = cleanAddress(arg) 
-        ipfs.name.resolve(n,function(err,resp){
-          if(err){
-            return console.log('Error while resolving','"'+n+'".','Code',err.Code,'Message:',err.Message)
-          }
+      ipfs.name.resolve(n,function(err,resp){
+        if(err){
+          console.log('Error while resolving','"'+n+'".','Code',err.Code,'Message:',err.Message)
+        } else {
           var newHash = resp.Path
           if(!nodes[n]){
             nodes[n] = { hash: newHash }
@@ -43,17 +44,16 @@ function refresh(){
             if(newHash != node[n].hash){
               nodes[n].hash = newHash
               // Remote update
-              if(newHash != currentHash)
-                ipfs.name.publish(newHash,function(err,res){
-                  console.log('Updated to',newHash,'from node:',n)
-                })
+              if(newHash != currentHash) ipfs.name.publish(newHash,function(err,res){
+                console.log('Updated to',newHash,'from node:',n)
+              })
             }
           }
-        })
+        }
+        done++
+        if(done >= app.args.length) setTimeout(refresh, interval)
+      })
     })
-
-    // Set up next refresh 
-    setTimeout(refresh, interval)
   })
 }
 
