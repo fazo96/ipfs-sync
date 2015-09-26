@@ -4,7 +4,7 @@ var app = require('commander')
 
 app
   .version(require('./package.json').version)
-  .description('sync your IPNS with other nodes')
+  .description("mirror another node's ipns publication")
   .usage('[options] <node ...>')
   .option('-h, --host', 'ipfs http API hostname')
   .option('-p, --port', 'ipfs http API port',parseInt)
@@ -18,40 +18,51 @@ var interval = (app.interval || 3) * 1000
 var myID, currentHash, nodes = {}
 
 ipfs.id(function(err,res){
-  console.log('My ID is',res.ID)
+  console.log('Starting ipfs-sync. Local node is',res.ID)
   myID = res.ID
   refresh()
 })
 
+var done = 0
+
+function next(){
+  done++
+  if(done >= app.args.length) setTimeout(refresh, interval)
+}
+
 function refresh(){
+  done = 0
   ipfs.name.resolve(myID,function(err,res){
     // Calculate current state
-    currentHash = cleanAddress(res.Path)
-    console.log('Current Hash is',currentHash)
-
+    currentHash = cleanAddress(res?res.Path:undefined)
     // Check all other nodes
-    var done = 0
     app.args.forEach(function(arg){
       var n = cleanAddress(arg) 
       ipfs.name.resolve(n,function(err,resp){
         if(err){
-          console.log('Error while resolving','"'+n+'".','Code',err.Code,'Message:',err.Message)
-        } else {
-          var newHash = resp.Path
-          if(!nodes[n]){
-            nodes[n] = { hash: newHash }
+          if(err.Code == 0 && err.Message == "expired record"){
+            console.log('The record published by',n,'is expired. Try republishing the record')
           } else {
-            if(newHash != node[n].hash){
-              nodes[n].hash = newHash
-              // Remote update
-              if(newHash != currentHash) ipfs.name.publish(newHash,function(err,res){
-                console.log('Updated to',newHash,'from node:',n)
-              })
-            }
+            console.log('Error while resolving','"'+n+'".','Code',err.Code,'Message:',err.Message)
           }
+          next()
+        } else {
+          var newHash = cleanAddress(resp.Path)
+          if(!nodes[n]) nodes[n] = { hash: newHash }
+          if(newHash != nodes[n].hash){
+            nodes[n].hash = newHash
+            // Remote update
+            if(newHash != currentHash){
+              ipfs.name.publish('/ipfs/'+newHash,function(err,res){
+                console.log('Updated from',currentHash,'to',newHash,'from node:',n)
+                next()
+              })
+            } else {
+              console.log(n,'is updated to the current version')
+              next()
+            }
+          } else next()
         }
-        done++
-        if(done >= app.args.length) setTimeout(refresh, interval)
       })
     })
   })
