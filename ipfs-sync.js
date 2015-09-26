@@ -40,10 +40,11 @@ function refresh(){
       var n = cleanAddress(arg) 
       ipfs.name.resolve(n,function(err,resp){
         if(err){
-          if(err.Code == 0 && err.Message == "expired record"){
-            console.log('The record published by',n,'is expired. Try republishing the record')
-          } else {
-            console.log('Error while resolving','"'+n+'".','Code',err.Code,'Message:',err.Message)
+          console.log('Error while resolving','"'+n+'":',err.Message)
+          if(err.Message == "expired record"){
+            console.log('The record published by',n,'is expired. Try publishing something on',n)
+          } else if(/^multihash length inconsistent/.test(err.Message)){
+            process.exit(-1)
           }
           next()
         } else {
