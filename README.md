@@ -4,12 +4,18 @@ Directory synchronization daemon built on top of IPFS and IPNS.
 You run the daemon and specify who can update the content,
 when one of them updates its ipns value, you do too!
 
-__Warning:__ this isn't tested yet and has no conflict resolution, but simple conflict handling is planned.
+### Installing
+
+__Warning:__ the program doesn't have conflict resolution yet and it doesn't
+automatically cache the data it's supposed to serve (ouch!) but it does work
+to mirror ipns publications and the mentioned missing features are planned.
+
+make sure you have `node` and `npm` installed and an [ipfs daemon](http://github.com/ipfs/go-ipfs) running, then just run `npm install -g ipfs-sync` to install the ipfs-sync daemon and start it by running `ipfs-sync` in your command line.
 
 ### Hack
 
 Clone the repo, then `cd` into it and run `npm install`.
-When it's done you can run the executable `./ipfs-sync.js` and hope for the best!
+When it's done you can run the executable `./ipfs-sync.js` and try it out :)
 
 ### License
 
